@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import { AppError } from "../errors/custom.error";
-import { Usuario, PrismaClient, Role } from "../../generated/prisma";
+import { Usuario, PrismaClient, Role } from "@prisma/client";
 import passport from "passport";
 import { generateToken } from "../config/authUtils";
 import path from "path";
@@ -11,6 +11,21 @@ import fs from "fs";
 
 export class usuarioController {
   prisma = new PrismaClient();
+
+    // Listado de usuarios
+  getUsuarios = async (
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const listado = await this.prisma.usuario.findMany({
+      });
+      response.json(listado);
+    } catch (error) {
+      next(error);
+    }
+  };
 
   register = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -73,27 +88,6 @@ export class usuarioController {
             },
           });
 
-          //Proceso externo para ver logins en excel con Python
-          const pythonPath =
-            "D:\\SSD2\\Universidad2025\\Programación_en_ambiente_webll2025\\Proyecto\\auditoria_logins_python\\venv\\Scripts\\python.exe";
-          const scriptPath =
-            "D:\\SSD2\\Universidad2025\\Programación_en_ambiente_webll2025\\Proyecto\\auditoria_logins_python\\src\\main.py";
-
-          console.log("Python path:", pythonPath);
-          console.log("Script path:", scriptPath);
-          const proceso = spawn(pythonPath, [scriptPath], {
-            windowsHide: true,
-          });
-          proceso.stdout.on("data", (data) => {
-            console.log("Auditoría salida:", data.toString());
-          });
-          proceso.stderr.on("data", (data) => {
-            console.error("Auditoría error:", data.toString());
-          });
-          proceso.on("close", (code) => {
-            console.log(`Auditoría finalizada con código ${code}`);
-          });
-
           // Generar token
           const token = generateToken(user as Usuario);
 
@@ -118,23 +112,7 @@ export class usuarioController {
     }
   };
 
-  // Listado de usuarios
-  getUsuarios = async (
-    request: Request,
-    response: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const listado = await this.prisma.usuario.findMany({
-        orderBy: {
-          id_usuario: "asc",
-        },
-      });
-      response.json(listado);
-    } catch (error) {
-      next(error);
-    }
-  };
+
 
   // Listado de Técnicos
   getByUser = async (
@@ -164,7 +142,7 @@ export class usuarioController {
     next: NextFunction
   ) => {
     try {
-      let idUsuario = parseInt(request.params.id);
+      let idUsuario = parseInt(request.params.id as string);
       if (isNaN(idUsuario)) {
         next(AppError.badRequest("El ID no es válido"));
       }
@@ -234,7 +212,7 @@ export class usuarioController {
   update = async (request: Request, response: Response, next: NextFunction) => {
     try {
       const body = request.body;
-      const idTecnico = parseInt(request.params.id);
+      const idTecnico = parseInt(request.params.id as string);
 
       //Obtener categoria anterior
       const TecnicoExistente = await this.prisma.usuario.findUnique({

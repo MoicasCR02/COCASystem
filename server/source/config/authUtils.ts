@@ -1,5 +1,5 @@
 import { sign, Secret, SignOptions } from "jsonwebtoken";
-import { Role } from "../../generated/prisma";
+import { Role } from "@prisma/client";
 
 export function generateToken(user: {
   id_usuario: number;

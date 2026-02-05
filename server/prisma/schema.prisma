@@ -23,6 +23,7 @@ model login_logs {
   fecha_login DateTime @db.DateTime
 }
 
+
 enum Role {
   ADMIN
   TECNICO
@@ -37,8 +38,6 @@ model Usuario {
   id_rol               Role @default(USER)
   ultimo_inicio_sesion DateTime? @db.DateTime
   activo               Boolean   @default(true)
-
-  //relaciones
-
   login login_logs[] // relacion a los login
 }
+

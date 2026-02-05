@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv'
 import cors from 'cors';
 import path from 'path'
 import { ErrorMiddleware } from './middleware/error.middleware';
+import { AppRoutes } from './routes/routes';
 
 const rootDir = __dirname;
 
@@ -27,6 +28,7 @@ app.use(
 );
 
 //---- Registro de rutas ----
+app.use("/", AppRoutes.routes);
 
 //Gestión de errores middleware
 app.use(ErrorMiddleware.handleError); 
